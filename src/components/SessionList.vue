@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { SessionOverview } from '../models.ts';
+import ButtonGroup from './ButtonGroup.vue';
+import SessionCard from './SessionCard.vue';
 
+export interface SessionCardProps {
+  session: SessionOverview;
+}
+
+
+defineProps<SessionCardProps>();
 // we 'll talk about this in a later module, but here we load the list of sessions and log it to the browser console
 // you can also open public/api/sessions/index.json to see the data in your editor
 const sessions = ref<SessionOverview[]>([]);
@@ -91,49 +99,19 @@ const filteredSessions = computed(() => {
       </div>
     </div>
 
-    <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-      <template v-for="level in levels" :key="level">
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
-          :id="level"
-          autocomplete="off"
-          @click="handleSelectLevel(level)"
-          :checked="level === selectedLevel"
-        />
-        <label class="btn btn-outline-primary" :for="level">{{ level }}</label>
-      </template>
-    </div>
+    
+    <ButtonGroup :options="levels" v-model="selectedLevel" />
 
     <!-- we're going to add filters in a later module that will update these counts -->
     <p>Showing {{ filteredSessions.length }} of {{ sessions.length }} talks</p>
 
     <div class="speaker-grid">
-      <!-- here we include three different cards depending on the level -->
-      <!-- your job is to replace this static markup with vue templating syntax -->
-      <!-- introductory and overview -->
-      <div class="card" v-for="session in filteredSessions" :key="session.id">
-        <div class="card-body">
-          <span
-            class="badge"
-            :class="{
-              'bg-success': session.level === 'Introductory and overview',
-              'bg-warning': session.level === 'Intermediate',
-              'bg-danger': session.level === 'Advanced',
-            }"
-            >{{ session.level }}</span
-          >
-          <h5 class="card-title">{{ session.title }}</h5>
-          <h6 class="card-subtitle mb-2 text-body-secondary">{{ session.speakers.join(', ') }}</h6>
-          <p class="card-text">{{ session.excerpt }}</p>
-          <div class="footer pt-2">
-            <span> {{ session.day }} {{ session.startTime }} - {{ session.endTime }}</span>
-            <a href="" class="btn btn-primary">Details</a>
-          </div>
-        </div>
-      </div>
-    </div>
+          <SessionCard 
+         v-for="session in filteredSessions" 
+         :key="session.id" 
+         :session="session"
+       />
+        </div> 
 
     <!-- show this if there are no sessions -->
     <p v-if="filteredSessions.length === 0">No sessions found</p>
